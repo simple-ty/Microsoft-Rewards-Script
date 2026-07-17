@@ -70,8 +70,9 @@ docker compose up -d --build
 
 | 目录 | 内容 |
 |------|------|
-| `./config/` | 运行时配置（自动生成，也可通过 `CONFIG_*` 环境变量覆盖） |
-| `./sessions/` | 登录会话（cookie） |
+| `/volume1/docker/rewards-script/config/` | 运行时配置（自动生成，可通过 `CONFIG_*` 环境变量覆盖） |
+| `/volume1/docker/rewards-script/sessions/` | 登录会话（cookie） |
+| `/volume1/docker/rewards-script/logs/` | 运行日志（按日期命名） |
 
 重建容器不会丢失这些数据。
 
