@@ -4,8 +4,9 @@ services:
         container_name: microsoft-rewards-script
         restart: unless-stopped
         volumes:
-            - ./config:/usr/src/microsoft-rewards-script/dist/config
-            - ./sessions:/usr/src/microsoft-rewards-script/dist/browser/sessions
+            - /volume1/docker/rewards-script/config:/usr/src/microsoft-rewards-script/dist/config
+            - /volume1/docker/rewards-script/sessions:/usr/src/microsoft-rewards-script/dist/browser/sessions
+            - /volume1/docker/rewards-script/logs:/usr/src/microsoft-rewards-script/logs
         environment:
             # ── 调度 ──────────────────────────────────────────────────────
             TZ: "Asia/Shanghai"
