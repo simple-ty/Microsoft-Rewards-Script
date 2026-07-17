@@ -7,6 +7,10 @@ WORKDIR /usr/src/microsoft-rewards-script
 
 ENV PLAYWRIGHT_BROWSERS_PATH=0
 
+# 国内镜像加速：npm + Chromium 下载
+ENV PLAYWRIGHT_DOWNLOAD_HOST=https://npmmirror.com/mirrors/playwright/
+RUN npm config set registry https://registry.npmmirror.com
+
 # Copy package files
 COPY package.json package-lock.json tsconfig.json ./
 
@@ -37,6 +41,9 @@ ENV NODE_ENV=production \
     TZ=UTC \
     PLAYWRIGHT_BROWSERS_PATH=0 \
     FORCE_HEADLESS=1
+
+# 替换为清华 apt 源（国内加速）
+RUN sed -i 's/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list.d/debian.sources
 
 # Install minimal system libraries required for Chromium headless to run,
 # plus jq (for config generation/patching) and gettext-base (for envsubst)
