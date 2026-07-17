@@ -35,7 +35,7 @@ services:
             # ── PushPlus 微信推送 ────────────────────────────────────────
             CONFIG_PUSHPLUS_ENABLED: 'true'
             CONFIG_PUSHPLUS_TOKEN: ${CONFIG_PUSHPLUS_TOKEN}
-            CONFIG_PUSHPLUS_TITLE: 'Microsoft-Rewards-Script'
+            CONFIG_PUSHPLUS_TITLE: 'Bing每日积分报告'
             CONFIG_PUSHPLUS_TEMPLATE: 'html'
 
             # ── 任务开关（全部开启）───────────────────────────────────────

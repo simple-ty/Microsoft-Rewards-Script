@@ -60,7 +60,7 @@
         "pushplus": {
             "enabled": false,
             "token": "",
-            "title": "Microsoft-Rewards-Script",
+            "title": "Bing每日积分报告",
             "template": "html"
         },
         "webhookLogFilter": {
