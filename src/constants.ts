@@ -54,19 +54,6 @@ export const URLS = {
   APP_USER_DATA: 'https://prod.rewardsplatform.microsoft.com/dapi/me?channel=SAAndroid&options=613'
 } as const
 
-export const DISCORD = {
-  MAX_EMBED_LENGTH: 1900,
-  RATE_LIMIT_DELAY: 500,
-  WEBHOOK_TIMEOUT: 10000,
-  DEBOUNCE_DELAY: 750,
-  COLOR_RED: 0xFF0000,
-  COLOR_CRIMSON: 0xDC143C,
-  COLOR_ORANGE: 0xFFA500,
-  COLOR_BLUE: 0x3498DB,
-  COLOR_GREEN: 0x00D26A,
-  AVATAR_URL: 'https://media.discordapp.net/attachments/1421163952972369931/1421929950377939125/Gc.png'
-} as const
-
 export const META = {
 
   C: 'aHR0cHM6Ly9kaXNjb3JkLmdnL2tuMzY5NUt4MzI=',

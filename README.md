@@ -74,8 +74,6 @@
 - ✅ 点击奖励
 
 **通知与监控**
-- ✅ Discord Webhook 集成
-- ✅ ntfy 推送支持
 - ✅ PushPlus 推送支持（国内微信推送）
 - ✅ 全面日志记录（带日志过滤、本地文件持久化）
 - ✅ Docker 支持与监控
@@ -368,22 +366,15 @@ docker compose restart          # 重启（不重建）
 
 ## 🔔 通知渠道
 
-本项目支持三种推送渠道（均在 `webhook` 对象下，**可同时开启多个**）：
+本项目仅支持 **PushPlus** 推送（在 `webhook.pushplus` 对象下配置）：
 
 | 设置 | 描述 | 默认值 |
 |---------|-------------|---------|
-| `webhook.discord.enabled` | 启用 Discord 推送 | `false` |
-| `webhook.discord.url` | Discord webhook URL | `""` |
-| `webhook.ntfy.enabled` | 启用 ntfy 推送 | `false` |
-| `webhook.ntfy.url` | ntfy 服务器 URL | `""` |
-| `webhook.ntfy.topic` | ntfy 主题 | `""` |
-| `webhook.ntfy.token` | ntfy 认证 token | `""` |
-| `webhook.ntfy.priority` | ntfy 优先级（1-5） | `3` |
 | `webhook.pushplus.enabled` | 启用 PushPlus 推送（国内） | `false` |
 | `webhook.pushplus.token` | PushPlus token | `""` |
 | `webhook.pushplus.template` | PushPlus 模板（`txt`/`html`/`markdown`） | `txt` |
 
-> 💡 **国内推荐**：**PushPlus**（微信推送，无需翻墙）。Discord / ntfy 需要能访问对应服务。
+> 💡 **PushPlus**（微信推送，无需翻墙）。Token 从 https://www.pushplus.plus/ 获取。
 
 ---
 

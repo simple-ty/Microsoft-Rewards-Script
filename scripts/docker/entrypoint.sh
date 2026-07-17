@@ -169,10 +169,8 @@ fi
 #      CONFIG_LOG_FILTER_KEYWORDS        → .consoleLogFilter.keywords (comma-separated)
 #
 #    Webhooks:
-#      CONFIG_DISCORD_ENABLED / CONFIG_DISCORD_URL
-#      CONFIG_NTFY_ENABLED / CONFIG_NTFY_URL / CONFIG_NTFY_TOPIC / CONFIG_NTFY_TOKEN
-#      CONFIG_NTFY_TITLE / CONFIG_NTFY_PRIORITY
-#      CONFIG_NTFY_TAGS                  → comma-separated e.g. "bot,notify"
+#      CONFIG_PUSHPLUS_ENABLED / CONFIG_PUSHPLUS_TOKEN / CONFIG_PUSHPLUS_TITLE
+#      CONFIG_PUSHPLUS_TEMPLATE / CONFIG_PUSHPLUS_CHANNEL
 #
 #    Webhook log filter:
 #      CONFIG_WEBHOOK_LOG_FILTER_ENABLED  → .webhook.webhookLogFilter.enabled
@@ -315,19 +313,6 @@ _cfg "${CONFIG_LOG_FILTER_ENABLED:-}"   '.consoleLogFilter.enabled'  bool
 _cfg "${CONFIG_LOG_FILTER_MODE:-}"      '.consoleLogFilter.mode'     string
 _cfg_array "${CONFIG_LOG_FILTER_LEVELS-__UNSET__}"    '.consoleLogFilter.levels'
 _cfg_array "${CONFIG_LOG_FILTER_KEYWORDS-__UNSET__}"  '.consoleLogFilter.keywords'
-
-# Discord webhook
-_cfg "${CONFIG_DISCORD_ENABLED:-}"  '.webhook.discord.enabled'  bool
-_cfg "${CONFIG_DISCORD_URL:-}"      '.webhook.discord.url'      string
-
-# ntfy webhook
-_cfg "${CONFIG_NTFY_ENABLED:-}"   '.webhook.ntfy.enabled'   bool
-_cfg "${CONFIG_NTFY_URL:-}"       '.webhook.ntfy.url'       string
-_cfg "${CONFIG_NTFY_TOPIC:-}"     '.webhook.ntfy.topic'     string
-_cfg "${CONFIG_NTFY_TOKEN:-}"     '.webhook.ntfy.token'     string
-_cfg "${CONFIG_NTFY_TITLE:-}"     '.webhook.ntfy.title'     string
-_cfg "${CONFIG_NTFY_PRIORITY:-}"  '.webhook.ntfy.priority'  number
-_cfg_array "${CONFIG_NTFY_TAGS-__UNSET__}"  '.webhook.ntfy.tags'
 
 # pushplus webhook
 _cfg "${CONFIG_PUSHPLUS_ENABLED:-}"   '.webhook.pushplus.enabled'   bool

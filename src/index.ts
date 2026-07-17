@@ -9,7 +9,7 @@ import Browser from './browser/Browser'
 import BrowserFunc from './browser/BrowserFunc'
 import BrowserUtils from './browser/BrowserUtils'
 
-import { IpcLog, Logger } from './logging/Logger'
+import { Logger } from './logging/Logger'
 import Utils from './util/Utils'
 import { loadAccounts, loadConfig } from './util/Load'
 import { checkNodeVersion } from './util/Validator'
@@ -21,8 +21,6 @@ import { SearchManager } from './functions/SearchManager'
 
 import type { Account } from './interface/Account'
 import AxiosClient from './util/Axios'
-import { sendDiscord, flushDiscordQueue } from './logging/Discord'
-import { sendNtfy, flushNtfyQueue } from './logging/Ntfy'
 import { sendPushPlus, flushPushPlusQueue } from './logging/PushPlus'
 import type { DashboardData } from './interface/DashboardData'
 import type { AppDashboardData } from './interface/AppDashBoardData'
@@ -58,7 +56,7 @@ export function getCurrentContext(): ExecutionContext {
 }
 
 async function flushAllWebhooks(timeoutMs = 5000): Promise<void> {
-    await Promise.allSettled([flushDiscordQueue(timeoutMs), flushNtfyQueue(timeoutMs), flushPushPlusQueue(timeoutMs)])
+    await flushPushPlusQueue(timeoutMs)
 }
 
 interface UserData {
@@ -233,23 +231,9 @@ export class MicrosoftRewardsBot {
             const worker = cluster.fork()
             worker.send?.({ chunk, runStartTime })
 
-            worker.on('message', (msg: { __ipcLog?: IpcLog; __stats?: AccountStats[] }) => {
+            worker.on('message', (msg: { __stats?: AccountStats[] }) => {
                 if (msg.__stats) {
                     allAccountStats.push(...msg.__stats)
-                }
-
-                const log = msg.__ipcLog
-                if (log && typeof log.content === 'string') {
-                    const { webhook } = this.config
-                    const { content, level } = log
-
-                    // Webhooks, for later expansion?
-                    if (webhook.discord?.enabled && webhook.discord.url) {
-                        sendDiscord(webhook.discord.url, content, level)
-                    }
-                    if (webhook.ntfy?.enabled && webhook.ntfy.url) {
-                        sendNtfy(webhook.ntfy, content, level)
-                    }
                 }
             })
 

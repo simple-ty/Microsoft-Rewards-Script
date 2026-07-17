@@ -24,23 +24,6 @@ const QueryEngineSchema = z.enum(['china', 'google', 'wikipedia', 'reddit', 'loc
 
 // Webhook
 const WebhookSchema = z.object({
-    discord: z
-        .object({
-            enabled: z.boolean(),
-            url: z.string()
-        })
-        .optional(),
-    ntfy: z
-        .object({
-            enabled: z.boolean().optional(),
-            url: z.string(),
-            topic: z.string().optional(),
-            token: z.string().optional(),
-            title: z.string().optional(),
-            tags: z.array(z.string()).optional(),
-            priority: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]).optional()
-        })
-        .optional(),
     pushplus: z
         .object({
             enabled: z.boolean().optional(),

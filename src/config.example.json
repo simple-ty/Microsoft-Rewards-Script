@@ -57,22 +57,6 @@
         "queryEngine": false
     },
     "webhook": {
-        "discord": {
-            "enabled": false,
-            "url": ""
-        },
-        "ntfy": {
-            "enabled": false,
-            "url": "",
-            "topic": "",
-            "token": "",
-            "title": "Microsoft-Rewards-Script",
-            "tags": [
-                "bot",
-                "notify"
-            ],
-            "priority": 3
-        },
         "pushplus": {
             "enabled": false,
             "token": "",

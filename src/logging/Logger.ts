@@ -1,9 +1,6 @@
 import chalk from 'chalk'
-import cluster from 'cluster'
 import fs from 'fs'
 import path from 'path'
-import { sendDiscord } from './Discord'
-import { sendNtfy } from './Ntfy'
 import type { MicrosoftRewardsBot } from '../index'
 import { errorDiagnostic } from '../util/ErrorDiagnostic'
 import type { LogFilter } from '../interface/Config'
@@ -11,11 +8,6 @@ import type { LogFilter } from '../interface/Config'
 export type Platform = boolean | 'main'
 export type LogLevel = 'info' | 'warn' | 'error' | 'debug'
 export type ColorKey = keyof typeof chalk
-export interface IpcLog {
-    content: string
-    level: LogLevel
-}
-
 type ChalkFn = (msg: string) => string
 
 function platformText(platform: Platform): string {
@@ -162,19 +154,6 @@ export class Logger {
             return
         }
 
-        if (cluster.isPrimary) {
-            if (config.webhook.discord?.enabled && config.webhook.discord.url) {
-                if (level === 'debug') return
-                sendDiscord(config.webhook.discord.url, cleanMsg, level)
-            }
-
-            if (config.webhook.ntfy?.enabled && config.webhook.ntfy.url) {
-                if (level === 'debug') return
-                sendNtfy(config.webhook.ntfy, cleanMsg, level)
-            }
-        } else {
-            process.send?.({ __ipcLog: { content: cleanMsg, level } })
-        }
     }
 
     private shouldPassFilter(filter: LogFilter | undefined, level: LogLevel, message: string): boolean {
