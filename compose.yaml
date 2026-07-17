@@ -1,6 +1,5 @@
 services:
     microsoft-rewards-script:
-        build: .
         image: microsoft-rewards-script:local
         container_name: microsoft-rewards-script
         restart: unless-stopped
