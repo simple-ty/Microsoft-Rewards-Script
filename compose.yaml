@@ -34,7 +34,7 @@ services:
 
             # ── PushPlus 微信推送 ────────────────────────────────────────
             CONFIG_PUSHPLUS_ENABLED: 'true'
-            CONFIG_PUSHPLUS_TOKEN: '改成你的pushplus_token'
+            CONFIG_PUSHPLUS_TOKEN: ${CONFIG_PUSHPLUS_TOKEN}
             CONFIG_PUSHPLUS_TITLE: 'Microsoft-Rewards-Script'
             CONFIG_PUSHPLUS_TEMPLATE: 'html'
 
