@@ -137,34 +137,60 @@ export class MicrosoftRewardsBot {
 
     private buildSummaryMessage(accountStats: AccountStats[], runStartTime: number, hadWorkerFailure: boolean): string {
         const totalCollectedPoints = accountStats.reduce((sum, s) => sum + s.collectedPoints, 0)
-        const totalInitialPoints = accountStats.reduce((sum, s) => sum + s.initialPoints, 0)
         const totalFinalPoints = accountStats.reduce((sum, s) => sum + s.finalPoints, 0)
         const totalDurationMinutes = ((Date.now() - runStartTime) / 1000 / 60).toFixed(1)
         const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19)
+        const statusColor = hadWorkerFailure ? '#e74c3c' : '#27ae60'
+        const statusText = hadWorkerFailure ? '异常' : '完成'
+        const accentColor = '#667eea'
 
-        const lines: string[] = [
-            `每日积分摘要 | ${timestamp}`,
-            `状态: ${hadWorkerFailure ? '异常' : '完成'}`,
-            `账户数: ${accountStats.length}`,
-            `总收集积分: +${totalCollectedPoints}`,
-            `原始总计: ${totalInitialPoints} → 新总计: ${totalFinalPoints}`,
-            `总运行时间: ${totalDurationMinutes}分钟`
-        ]
+        const escapeHtml = (s: string): string =>
+            s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
-        if (accountStats.length > 0) {
-            lines.push('')
-            lines.push('账户明细:')
-            for (const stat of accountStats) {
-                const status = stat.success ? '成功' : '失败'
-                const duration = Number.isFinite(stat.duration) ? stat.duration.toFixed(1) : String(stat.duration)
-                const error = stat.error ? ` | ${stat.error}` : ''
-                lines.push(
-                    `${stat.email} | +${stat.collectedPoints} | ${stat.initialPoints}→${stat.finalPoints} | ${duration}秒 | ${status}${error}`
-                )
-            }
+        let rows = ''
+        for (const stat of accountStats) {
+            const rowColor = stat.success ? '#27ae60' : '#e74c3c'
+            const status = stat.success ? '成功' : '失败'
+            const duration = Number.isFinite(stat.duration) ? stat.duration.toFixed(1) : String(stat.duration)
+            const errorHint = stat.error
+                ? `<br><span style="font-size:10px;color:#e74c3c">${escapeHtml(stat.error)}</span>`
+                : ''
+            rows += `
+      <div style="display:flex;align-items:center;padding:7px 10px;border-radius:6px;margin-bottom:4px;background:#fafafa">
+        <span style="flex:1;font-size:11px;color:#555;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(stat.email)}</span>
+        <span style="color:${accentColor};font-weight:700;margin:0 6px;font-size:13px;min-width:36px;text-align:right">+${stat.collectedPoints}</span>
+        <span style="font-size:10px;color:#bbb;margin:0 4px">${stat.initialPoints}&rarr;${stat.finalPoints}</span>
+        <span style="color:${rowColor};font-size:11px;min-width:24px;text-align:center;font-weight:600">${status}</span>
+      </div>${errorHint}`
         }
 
-        return lines.join('\n')
+        return `
+<div style="max-width:420px;margin:0 auto;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;font-size:13px;color:#333">
+  <div style="background:linear-gradient(135deg,${accentColor},#764ba2);color:#fff;padding:14px 18px;border-radius:8px 8px 0 0">
+    <div style="font-size:17px;font-weight:700;margin-bottom:2px">Microsoft Rewards</div>
+    <div style="font-size:11px;opacity:0.8">${timestamp}</div>
+  </div>
+  <div style="background:#fff;padding:14px 16px;border:1px solid #e8e8e8;border-top:none;border-radius:0 0 8px 8px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:14px;text-align:center">
+      <div style="flex:1">
+        <div style="font-size:22px;font-weight:700;color:${accentColor}">+${totalCollectedPoints}</div>
+        <div style="font-size:10px;color:#999;margin-top:2px">今日获取</div>
+      </div>
+      <div style="flex:1">
+        <div style="font-size:18px;font-weight:600;color:#333">${totalFinalPoints}</div>
+        <div style="font-size:10px;color:#999;margin-top:2px">当前积分</div>
+      </div>
+      <div style="flex:1">
+        <span style="display:inline-block;background:${statusColor};color:#fff;padding:2px 10px;border-radius:10px;font-size:12px;font-weight:600">${statusText}</span>
+        <div style="font-size:10px;color:#999;margin-top:4px">${totalDurationMinutes} 分钟</div>
+      </div>
+    </div>
+    <div style="border-top:1px solid #f0f0f0;padding-top:10px">
+      <div style="font-size:11px;color:#999;margin-bottom:6px">账户明细</div>
+      ${rows}
+    </div>
+  </div>
+</div>`
     }
 
     private async sendPushPlusSummary(

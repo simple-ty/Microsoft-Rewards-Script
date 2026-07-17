@@ -61,7 +61,7 @@
             "enabled": false,
             "token": "",
             "title": "Microsoft-Rewards-Script",
-            "template": "txt"
+            "template": "html"
         },
         "webhookLogFilter": {
             "enabled": false,

@@ -56,7 +56,7 @@ services:
             #CONFIG_PUSHPLUS_ENABLED: 'true'
             #CONFIG_PUSHPLUS_TOKEN: 'your_pushplus_token'
             #CONFIG_PUSHPLUS_TITLE: 'Microsoft-Rewards-Script'
-            #CONFIG_PUSHPLUS_TEMPLATE: 'txt'        # txt / html / markdown
+            #CONFIG_PUSHPLUS_TEMPLATE: 'html'        # txt / html / markdown
             #CONFIG_PUSHPLUS_CHANNEL: ''             # 默认微信；可选其他 channel
             #
             # Webhook log filter (控制哪些日志触发 PushPlus 推送):
