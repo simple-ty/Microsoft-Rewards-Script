@@ -1,8 +1,5 @@
 services:
     microsoft-rewards-script:
-        # 本地构建本项目代码。注意：本项目未发布公共镜像，ghcr.io/thenetsky/...
-        # 是原作者 TheNetsky 的镜像，跑的是原版代码，不含本项目的国内适配
-        # （中国热搜 / PushPlus / 日志中文化 / Server Action 等）。
         build: .
         image: microsoft-rewards-script:local
         container_name: microsoft-rewards-script
@@ -11,59 +8,43 @@ services:
             - ./config:/usr/src/microsoft-rewards-script/dist/config
             - ./sessions:/usr/src/microsoft-rewards-script/dist/browser/sessions
         environment:
-            # ── Scheduling ───────────────────────────────────────────────────
-            TZ: "Asia/Shanghai" # Set your timezone for proper scheduling
+            # ── 调度 ──────────────────────────────────────────────────────
+            TZ: "Asia/Shanghai"
             NODE_ENV: 'production'
-            CRON_SCHEDULE: '0 7 * * *' # use crontab.guru to customize your schedule
-            RUN_ON_START: 'true' # run script immediately on container start
-            SKIP_RANDOM_SLEEP: 'false'
-            #MIN_SLEEP_MINUTES: "5"
-            #MAX_SLEEP_MINUTES: "50"
-            #STUCK_PROCESS_TIMEOUT_HOURS: "8"
+            CRON_SCHEDULE: '0 9 * * *'
+            RUN_ON_START: 'true'
+            MIN_SLEEP_MINUTES: '5'
+            MAX_SLEEP_MINUTES: '50'
 
-            # ── Accounts ─────────────────────────────────────────────────────
+            # ── 账号（敏感信息通过 .env 传入）─────────────────────────────
             ACCOUNT_1_EMAIL: ${ACCOUNT_1_EMAIL}
             ACCOUNT_1_PASSWORD: ${ACCOUNT_1_PASSWORD}
+            ACCOUNT_1_GEO_LOCALE: 'cn'
+            ACCOUNT_1_LANG_CODE: 'zh'
+            # 如需 2FA，取消下行注释并在 .env 中设置
             #ACCOUNT_1_TOTP_SECRET: ${ACCOUNT_1_TOTP_SECRET}
-            #ACCOUNT_1_RECOVERY_EMAIL: ${ACCOUNT_1_RECOVERY_EMAIL}
-            #ACCOUNT_1_GEO_LOCALE: ${ACCOUNT_1_GEO_LOCALE}
-            #ACCOUNT_1_LANG_CODE: ${ACCOUNT_1_LANG_CODE}
-            #ACCOUNT_1_PROXY_AXIOS: ${ACCOUNT_1_PROXY_AXIOS}
-            #ACCOUNT_1_PROXY_URL: ${ACCOUNT_1_PROXY_URL}
-            #ACCOUNT_1_PROXY_PORT: ${ACCOUNT_1_PROXY_PORT}
-            #ACCOUNT_1_PROXY_USERNAME: ${ACCOUNT_1_PROXY_USERNAME}
-            #ACCOUNT_1_PROXY_PASSWORD: ${ACCOUNT_1_PROXY_PASSWORD}
-            #
-            #ACCOUNT_2_EMAIL: ${ACCOUNT_2_EMAIL}
-            #ACCOUNT_2_PASSWORD: ${ACCOUNT_2_PASSWORD}
-            # Add additional accounts as ACCOUNT_3_*, ACCOUNT_4_*, etc. following the same pattern
+            # 多账号按 ACCOUNT_2_* 递增
 
-            # ── Configuration ───────────────────────────────────────────────
-            # Uncomment to override defaults, a full list of configuration options are in the README.
-            #
-            # General:
-            #CONFIG_CLUSTERS: '1'
-            #
-            # Search behaviour:
-            #CONFIG_SEARCH_DELAY_MIN: '30sec'
-            #CONFIG_SEARCH_DELAY_MAX: '1min'
-            #
-            # 查询源（国内核心特性）：
-            #CONFIG_QUERY_ENGINES: 'china,local'  # 中国热搜(gmya.net) + 本地词兜底；国内推荐，无需代理
-            #CONFIG_CHINA_API_APPKEY: ''           # gmya.net appkey，填入解除免费档限流（留空走免费档）
-            #
-            # PushPlus 推送（微信推送，无需翻墙）:
-            #CONFIG_PUSHPLUS_ENABLED: 'true'
-            #CONFIG_PUSHPLUS_TOKEN: 'your_pushplus_token'
-            #CONFIG_PUSHPLUS_TITLE: 'Microsoft-Rewards-Script'
-            #CONFIG_PUSHPLUS_TEMPLATE: 'html'        # txt / html / markdown
-            #CONFIG_PUSHPLUS_CHANNEL: ''             # 默认微信；可选其他 channel
-            #
-            # Webhook log filter (控制哪些日志触发 PushPlus 推送):
-            #CONFIG_WEBHOOK_LOG_FILTER_ENABLED: 'false'
-            #CONFIG_WEBHOOK_LOG_FILTER_MODE: 'whitelist'      # whitelist or blacklist
-            #CONFIG_WEBHOOK_LOG_FILTER_LEVELS: 'error'        # comma-separated
-            #CONFIG_WEBHOOK_LOG_FILTER_KEYWORDS: 'starting account,select number,collected'
+            # ── 搜索与查询源 ─────────────────────────────────────────────
+            CONFIG_QUERY_ENGINES: 'china,local'
+            CONFIG_SEARCH_DELAY_MIN: '30sec'
+            CONFIG_SEARCH_DELAY_MAX: '1min'
+            # gmya.net appkey，填入解除免费档限流（留空走免费档）
+            CONFIG_CHINA_API_APPKEY: ''
+
+            # ── PushPlus 微信推送 ────────────────────────────────────────
+            CONFIG_PUSHPLUS_ENABLED: 'true'
+            CONFIG_PUSHPLUS_TOKEN: '改成你的pushplus_token'
+            CONFIG_PUSHPLUS_TITLE: 'Microsoft-Rewards-Script'
+            CONFIG_PUSHPLUS_TEMPLATE: 'html'
+
+            # ── 任务开关（全部开启）───────────────────────────────────────
+            CONFIG_WORKER_DAILY_SET: 'true'
+            CONFIG_WORKER_MORE_PROMOTIONS: 'true'
+            CONFIG_WORKER_PUNCH_CARDS: 'true'
+            CONFIG_WORKER_DESKTOP_SEARCH: 'true'
+            CONFIG_WORKER_MOBILE_SEARCH: 'true'
+            CONFIG_WORKER_DAILY_CHECKIN: 'true'
 
         healthcheck:
             test: ['CMD', 'sh', '-c', 'pgrep cron > /dev/null || exit 1']
