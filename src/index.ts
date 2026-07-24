@@ -207,6 +207,94 @@ export class MicrosoftRewardsBot {
         await sendPushPlus(pushplus, content)
     }
 
+    /**
+     * Edge 浏览时长补足：在所有任务完成后，检查 Edge 浏览 30 分钟任务的进度，
+     * 如果未完成则让浏览器保持打开 bing 页面，等待剩余时间。
+     * 微软通过页面上的 JS 心跳追踪浏览时长，headless 浏览器中 JS 照常执行。
+     */
+    private async doEdgeBrowseCompensation(page: Page, accountEmail: string): Promise<void> {
+        try {
+            this.panelData = await this.browser.func.getPanelFlyoutData()
+        } catch (error) {
+            this.logger.warn(
+                true,
+                'EDGE-BROWSE',
+                `获取 panelData 失败，跳过 Edge 浏览补足: ${error instanceof Error ? error.message : String(error)}`
+            )
+            return
+        }
+
+        const attrs = this.panelData.flyoutResult?.dailyCheckInPromotion?.attributes
+        if (!attrs) {
+            this.logger.warn(true, 'EDGE-BROWSE', 'panelData 中未找到 dailyCheckInPromotion，跳过')
+            return
+        }
+
+        if (attrs.partner_edge_completed === 'True') {
+            this.logger.info(true, 'EDGE-BROWSE', 'Edge 浏览任务已完成，无需补足')
+            return
+        }
+
+        const currentMinutes = parseInt(attrs.partner_edge_titleArg0 ?? '0', 10)
+        const targetMinutes = parseInt(attrs.partner_edge_titleArg1 ?? '30', 10)
+        const remainingMinutes = targetMinutes - currentMinutes
+
+        if (remainingMinutes <= 0) {
+            this.logger.info(true, 'EDGE-BROWSE', `Edge 浏览已达标 (${currentMinutes}/${targetMinutes})，无需补足`)
+            return
+        }
+
+        this.logger.info(
+            true,
+            'EDGE-BROWSE',
+            `Edge 浏览进度: ${currentMinutes}/${targetMinutes} 分钟 | 需补足: ${remainingMinutes} 分钟 | ${accountEmail}`
+        )
+
+        // 打开 bing 新闻页面（页面 JS 会向微软上报浏览心跳）
+        try {
+            await page.goto('https://www.bing.com/news', { waitUntil: 'domcontentloaded', timeout: 30000 })
+        } catch {
+            this.logger.warn(true, 'EDGE-BROWSE', '打开 bing 新闻页面失败，尝试 bing 首页')
+            try {
+                await page.goto('https://www.bing.com', { waitUntil: 'domcontentloaded', timeout: 30000 })
+            } catch {
+                this.logger.error(true, 'EDGE-BROWSE', '无法打开浏览页面，放弃补足')
+                return
+            }
+        }
+
+        // 每 30 秒滚动一次页面，模拟真实浏览行为
+        const intervalMs = 30_000
+        const totalMs = remainingMinutes * 60_000
+        const iterations = Math.ceil(totalMs / intervalMs)
+
+        for (let i = 0; i < iterations; i++) {
+            await this.utils.wait(intervalMs)
+
+            // 随机滚动模拟阅读
+            await page.evaluate(() => {
+                window.scrollBy(0, 300 + Math.random() * 400)
+            }).catch(() => {})
+
+            // 每分钟输出一次进度
+            if ((i + 1) % 2 === 0) {
+                const elapsed = ((i + 1) * 30 / 60).toFixed(1)
+                this.logger.info(
+                    true,
+                    'EDGE-BROWSE',
+                    `浏览补足中... 已等待 ${elapsed} / ${remainingMinutes} 分钟`
+                )
+            }
+        }
+
+        this.logger.info(
+            true,
+            'EDGE-BROWSE',
+            `Edge 浏览补足完成 | 额外浏览 ${remainingMinutes} 分钟 | ${accountEmail}`,
+            'green'
+        )
+    }
+
     // 获取当前是否为移动端的上下文
     get isMobile(): boolean {
         return getCurrentContext().isMobile
@@ -554,6 +642,9 @@ export class MicrosoftRewardsBot {
                     account,
                     accountEmail
                 )
+
+                // Edge 浏览时长补足：检查进度，不足则继续浏览
+                await this.doEdgeBrowseCompensation(this.mainMobilePage, accountEmail)
 
                 mobileContextClosed = true
 
