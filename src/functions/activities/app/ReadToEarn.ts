@@ -38,6 +38,8 @@ export class ReadToEarn extends Workers {
             let totalGained = 0
             let articlesRead = 0
             let oldBalance = startBalance
+            let consecutiveNoGain = 0 // 连续未获得积分的计数器
+            const maxConsecutiveNoGain = 3 // 连续3次无积分才停止
 
             for (let i = 0; i < articleCount; ++i) {
                 jsonData.id = randomBytes(64).toString('hex')
@@ -81,13 +83,27 @@ export class ReadToEarn extends Workers {
                 )
 
                 if (gainedPoints <= 0) {
+                    consecutiveNoGain++
                     this.bot.logger.info(
                         this.bot.isMobile,
                         'READ-TO-EARN',
-                        `未获得积分，停止阅读赚钱 | 文章=${i + 1}/${articleCount} | 状态=${response.status} | 原始余额=${oldBalance} | 新余额=${newBalance}`
+                        `未获得积分 (${consecutiveNoGain}/${maxConsecutiveNoGain}) | 文章=${i + 1}/${articleCount} | 状态=${response.status} | 原始余额=${oldBalance} | 新余额=${newBalance}`
                     )
-                    break
+                    if (consecutiveNoGain >= maxConsecutiveNoGain) {
+                        this.bot.logger.info(
+                            this.bot.isMobile,
+                            'READ-TO-EARN',
+                            `连续 ${maxConsecutiveNoGain} 次未获得积分，停止阅读赚钱`
+                        )
+                        break
+                    }
+                    // 未达阈值，等待后继续尝试
+                    await this.bot.utils.wait(this.bot.utils.randomDelay(delayMin, delayMax))
+                    continue
                 }
+
+                // 获得积分，重置连续计数器
+                consecutiveNoGain = 0
 
                 // Update point tracking
                 this.bot.userData.currentPoints = newBalance
